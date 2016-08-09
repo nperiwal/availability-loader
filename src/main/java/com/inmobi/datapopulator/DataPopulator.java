@@ -8,13 +8,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,35 +32,20 @@ public class DataPopulator {
 
         try {
 
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
+            Client client = Client.create();
+            WebResource webResource = client.resource(urlString);
+            ClientResponse response = webResource.accept("application/json").get(ClientResponse.class);
 
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() +
-                        conn.getResponseMessage());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-            String output;
-            String response = "";
-            while ((output = br.readLine()) != null) {
-                response += output;
-            }
+            String output = response.getEntity(String.class);
 
             Type listType = new TypeToken<ArrayList<ModifiedResult>>(){}.getType();
-            List<ModifiedResult> modifiedList = new Gson().fromJson (response, listType);
-            conn.disconnect();
+            List<ModifiedResult> modifiedList = new Gson().fromJson (output, listType);
 
             for (ModifiedResult result : modifiedList) {
                 buildHTML(result.getDate(), result.getVertica(), result.getAvailability());
             }
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
