@@ -62,7 +62,7 @@ public class DataPopulator {
             String modifiedDate = formatter.format(dt);
 
             if (measure.equals("")) {
-                measure = "2";
+                measure = "0";
             }
             int category = 2;
             if (!availability.equals("NA")) {
