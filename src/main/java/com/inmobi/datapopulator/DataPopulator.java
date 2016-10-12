@@ -24,6 +24,7 @@ public class DataPopulator {
 
     public static void main(String[] args) {
 
+        //getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/day?date=2016-10-03");
         getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/today");
         getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/yesterday");
     }
@@ -45,7 +46,7 @@ public class DataPopulator {
                 System.out.println(result);
                 buildHTML(result.getDate(), result.getVerticaRequest(), result.getRequestAvailability(),
                         result.getVerticaClick(), result.getClickAvailability(),
-                        result.getVerticaRenderCPC(), result.getRenderCPCAvailability());
+                        result.getVerticaRender(), result.getRenderAvailability());
             }
 
         } catch (Exception e) {
@@ -68,19 +69,19 @@ public class DataPopulator {
             m2 = modify(m2);
             m3 = modify(m3);
 
-            int category1 = 2;
+            double category1 = 0;
             if (!a1.equals("NA")) {
                 category1 = calculateCategory(a1);
             } else {
                 a1 = "0%";
             }
-            int category2 = 2;
+            double category2 = 0;
             if (!a2.equals("NA")) {
                 category2 = calculateCategory(a2);
             } else {
                 a2 = "0%";
             }
-            int category3 = 2;
+            double category3 = 0;
             if (!a3.equals("NA")) {
                 category3 = calculateCategory(a3);
             } else {
@@ -88,9 +89,11 @@ public class DataPopulator {
             }
 
             String htmlString = "{\"info_Request Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Request Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m1 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a1 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Request Measures\":" + category1 + "}";
+            System.out.println(htmlString);
             sendData(htmlString);
 
             htmlString = "{\"info_Click Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Click Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m2 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a2 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Click Measures\":" + category2 + "}";
+            //System.out.println(htmlString);
             sendData(htmlString);
 
             htmlString = "{\"info_Render Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Render Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m3 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a3 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Render Measures\":" + category3 + "}";
@@ -112,15 +115,16 @@ public class DataPopulator {
         }
     }
 
-    private static int calculateCategory(String input) {
+    private static double calculateCategory(String input) {
         double percentage = Double.parseDouble(input.substring(0, input.length()-1));
-        if (percentage < 95d) {
+        return -1*percentage;
+        /*if (percentage < 95d) {
             return  2;
         } else if (percentage < 99.5d) {
             return  1;
         } else {
              return  0;
-        }
+        }*/
     }
 
     private static void sendData(String input) {
@@ -140,7 +144,7 @@ public class DataPopulator {
                 throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
             }
 
-            System.out.println("Output from Server .... \n");
+            System.out.println("Output from Server .... ");
             String output = response.getEntity(String.class);
             System.out.println(output);
         } catch (Exception e) {
@@ -153,13 +157,11 @@ public class DataPopulator {
         String date;
         String verticaRequest;
         String verticaClick;
-        String verticaRenderCPC;
-        String verticaRenderCPM;
+        String verticaRender;
         String verticaBilling;
         String requestAvailability;
         String clickAvailability;
-        String renderCPCAvailability;
-        String renderCPMAvailability;
+        String renderAvailability;
         String billingAvailability;
 
         public String getDate() {
@@ -174,12 +176,8 @@ public class DataPopulator {
             return verticaClick;
         }
 
-        public String getVerticaRenderCPC() {
-            return verticaRenderCPC;
-        }
-
-        public String getVerticaRenderCPM() {
-            return verticaRenderCPM;
+        public String getVerticaRender() {
+            return verticaRender;
         }
 
         public String getVerticaBilling() {
@@ -194,12 +192,8 @@ public class DataPopulator {
             return clickAvailability;
         }
 
-        public String getRenderCPCAvailability() {
-            return renderCPCAvailability;
-        }
-
-        public String getRenderCPMAvailability() {
-            return renderCPMAvailability;
+        public String getRenderAvailability() {
+            return renderAvailability;
         }
 
         public String getBillingAvailability() {
