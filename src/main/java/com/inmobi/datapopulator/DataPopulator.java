@@ -45,8 +45,9 @@ public class DataPopulator {
             for (ModifiedResult result : modifiedList) {
                 System.out.println(result);
                 buildHTML(result.getDate(), result.getVerticaRequest(), result.getRequestAvailability(),
-                        result.getVerticaClick(), result.getClickAvailability(),
-                        result.getVerticaRender(), result.getRenderAvailability());
+                        result.getVerticaClick(), result.getClickAvailability(), result.getVerticaRender(),
+                        result.getRenderAvailability(), result.getVerticaBilling(), result.getBillingAvailability(),
+                        result.getVerticaConversion(), result.getConversionAvailability());
             }
 
         } catch (Exception e) {
@@ -55,7 +56,8 @@ public class DataPopulator {
 
     }
 
-    private static void buildHTML(String date, String m1, String a1, String m2, String a2, String m3, String a3) {
+    private static void buildHTML(String date, String m1, String a1, String m2, String a2, String m3, String a3,
+                                  String m4, String a4, String m5, String a5) {
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH");
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
@@ -68,6 +70,8 @@ public class DataPopulator {
             m1 = modify(m1);
             m2 = modify(m2);
             m3 = modify(m3);
+            m4 = modify(m4);
+            m5 = modify(m5);
 
             double category1 = 0;
             if (!a1.equals("NA")) {
@@ -87,6 +91,18 @@ public class DataPopulator {
             } else {
                 a3 = "0%";
             }
+            double category4 = 0;
+            if (!a4.equals("NA")) {
+                category4 = calculateCategory(a4);
+            } else {
+                a4 = "0%";
+            }
+            double category5 = 0;
+            if (!a5.equals("NA")) {
+                category5 = calculateCategory(a5);
+            } else {
+                a5 = "0%";
+            }
 
             String htmlString = "{\"info_Request Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Request Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m1 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a1 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Request Measures\":" + category1 + "}";
             System.out.println(htmlString);
@@ -97,6 +113,14 @@ public class DataPopulator {
             sendData(htmlString);
 
             htmlString = "{\"info_Render Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Render Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m3 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a3 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Render Measures\":" + category3 + "}";
+            //System.out.println(htmlString);
+            sendData(htmlString);
+
+            htmlString = "{\"info_Billing Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Billing Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m4 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a4 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Billing Measures\":" + category4 + "}";
+            //System.out.println(htmlString);
+            sendData(htmlString);
+
+            htmlString = "{\"info_Conversion Measures\":\"History :http://track.corp.inmobi.com/bender/dash/175 <br> <div><h4></h4></div> <br> <div> <table border=\\\"1\\\" width=\\\"700\\\" CELLSPACING=\\\"1\\\" CELLPADDING=\\\"3\\\"> <caption style=\\\"text-align:center\\\"><b>Audit vs Vertica</b></caption> <tr> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Measure</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Vertica</td> <td bgcolor=\\\"#3399FF \\\" align=\\\"center\\\">Availability</td> </tr> <tr> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">Conversion Count</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">" + m5 + "</td> <td bgcolor=\\\"#FFFF33 \\\" align=\\\"center\\\">"+ a5 +"</td> </tr> </table> </div>\", \"x\":\""+ modifiedDate +"\", \"Conversion Measures\":" + category5 + "}";
             //System.out.println(htmlString);
             sendData(htmlString);
 
@@ -118,13 +142,6 @@ public class DataPopulator {
     private static double calculateCategory(String input) {
         double percentage = Double.parseDouble(input.substring(0, input.length()-1));
         return -1*percentage;
-        /*if (percentage < 95d) {
-            return  2;
-        } else if (percentage < 99.5d) {
-            return  1;
-        } else {
-             return  0;
-        }*/
     }
 
     private static void sendData(String input) {
@@ -159,10 +176,12 @@ public class DataPopulator {
         String verticaClick;
         String verticaRender;
         String verticaBilling;
+        String verticaConversion;
         String requestAvailability;
         String clickAvailability;
         String renderAvailability;
         String billingAvailability;
+        String conversionAvailability;
 
         public String getDate() {
             return date;
@@ -184,6 +203,10 @@ public class DataPopulator {
             return verticaBilling;
         }
 
+        public String getVerticaConversion() {
+            return verticaConversion;
+        }
+
         public String getRequestAvailability() {
             return requestAvailability;
         }
@@ -200,5 +223,8 @@ public class DataPopulator {
             return billingAvailability;
         }
 
+        public String getConversionAvailability() {
+            return conversionAvailability;
+        }
     }
 }
