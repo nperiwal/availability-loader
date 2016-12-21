@@ -14,8 +14,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 /**
  * Created by narayan.periwal on 8/9/16.
@@ -27,6 +30,49 @@ public class DataPopulator {
         //getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/day?date=2016-10-03");
         getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/today");
         getAvailability("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/yesterday");
+        //testapi("http://dp2001.grid.uh1.inmobi.com:8080/firstapp/api/hourly/completeness", "unified", "2016-11-03-00", "2016-11-03-23", "click");
+    }
+
+    private static void testapi(String urlString, String factTag, String start, String end, String measureTag) {
+        try {
+
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH");
+            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+
+            Client client = Client.create();
+            WebResource webResource = client.resource(urlString)
+                    .queryParam("fact_tag", factTag)
+                    .queryParam("start_date", start)
+                    .queryParam("end_date", end)
+                    .queryParam("measure_tag", measureTag);
+            ClientResponse response = webResource.accept("application/json").get(ClientResponse.class);
+
+            String output = response.getEntity(String.class);
+
+            Map<String, Map<Date, Float>> modifiedResult = new HashMap<>();
+
+            Type listType = new TypeToken<Map<String, Map<String, Float>>>(){}.getType();
+            Map<String, Map<String, Float>> result = new Gson().fromJson (output, listType);
+            System.out.println("modifying");
+
+            if (result != null) {
+                for (Map.Entry<String, Map<String, Float>> tagMap : result.entrySet()) {
+                    if (tagMap.getValue() != null) {
+                        for (Map.Entry<String, Float> partitionCompleteness : tagMap.getValue().entrySet()) {
+                            if (modifiedResult.get(tagMap.getKey()) == null) {
+                                modifiedResult.put(tagMap.getKey(), new TreeMap<>());
+                            }
+                            modifiedResult.get(tagMap.getKey()).put(formatter.parse(partitionCompleteness.getKey()), partitionCompleteness.getValue());
+                        }
+                    }
+                }
+            }
+            System.out.println("end");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void getAvailability(String urlString) {
